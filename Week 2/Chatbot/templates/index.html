@@ -39,12 +39,16 @@
         button {
             margin-left: 10px;
         }
-        input[type="text"] {
+        input[type="text"], input[type="date"] {
             padding: 5px;
-            width: 200px;
+            margin-right: 10px;
         }
         input[type="checkbox"] {
             margin-right: 10px;
+        }
+        .deadline {
+            font-size: 0.9em;
+            color: grey;
         }
     </style>
 </head>
@@ -57,6 +61,7 @@
                 <li class="{% if task.completed %}completed{% endif %}">
                     <input type="checkbox" name="completed_tasks" value="{{ loop.index0 }}" {% if task.completed %}checked{% endif %} onchange="this.form.submit()">
                     <span>{{ task.description }}</span>
+                    <span class="deadline">(Due: {{ task.deadline }})</span>
                     <a href="{{ url_for('delete_task', task_id=loop.index0) }}">
                         <button type="button">Delete</button>
                     </a>
@@ -69,6 +74,7 @@
 
         <form action="{{ url_for('add_task') }}" method="POST">
             <input type="text" name="task" placeholder="New Item" required>
+            <input type="date" name="deadline" required>
             <button type="submit">Add</button>
         </form>
     </div>

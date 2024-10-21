@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for
+from datetime import datetime
 
 app = Flask(__name__)
 
-# In-memory task list with status
+# In-memory task list with description, completion status, and deadline
 tasks = []
 
 @app.route('/')
@@ -12,8 +13,13 @@ def index():
 @app.route('/add', methods=['POST'])
 def add_task():
     task_description = request.form.get('task')
-    if task_description:
-        tasks.append({'description': task_description, 'completed': False})
+    task_deadline = request.form.get('deadline')
+
+    # Ensure task description and deadline are not empty
+    if task_description and task_deadline:
+        # Parse deadline to datetime object
+        deadline = datetime.strptime(task_deadline, '%Y-%m-%d').date()
+        tasks.append({'description': task_description, 'completed': False, 'deadline': deadline})
     return redirect(url_for('index'))
 
 @app.route('/delete/<int:task_id>')
