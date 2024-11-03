@@ -1,0 +1,546 @@
+/* styles.css */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f9;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+header nav a {
+    color: #61dafb;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+header nav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    padding: 20px;
+}
+
+h2 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* Card Layout for History and Recommendations */
+ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 0;
+}
+
+.history-card, .recommendation-card {
+    background-color: #f4f4f9;
+    color: #333;
+    padding: 15px;
+    border-radius: 5px;
+    flex: 1 1 calc(100% - 30px);
+    transition: transform 0.2s;
+}
+
+.history-card h3, .recommendation-card h3 {
+    font-size: 18px;
+}
+
+/* History List Section */
+.history-list {
+    margin-top: 30px; /* Adjust the value to control the space */
+}
+
+.history-list h2 {
+    margin-bottom: 10px;
+}
+
+/* Forms */
+form {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 2px;
+}
+
+label {
+    font-weight: bold;
+    color: #555;
+}
+
+input[type="text"],
+input[type="date"],
+textarea {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+textarea {
+    resize: vertical;
+}
+
+button {
+    padding: 10px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #555;
+}
+
+footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 10px;
+}
+
+/* Toggle Button for Filter Section */
+.filter-toggle {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    width: 100%;
+    text-align: left;
+}
+
+.filter-toggle:hover {
+    background-color: #555;
+}
+
+/* Filter Options Dropdown */
+.filter-options {
+    display: none;
+    padding: 15px;
+    background-color: #f4f4f9;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+/* Styling for Search Section */
+.search-section {
+    margin-bottom: 20px;
+}
+
+.search-section input[type="text"] {
+    width: calc(100% - 100px);
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 5px;
+}
+
+.search-section button {
+    padding: 8px 15px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.search-section button:hover {
+    background-color: #555;
+}
+
+/* Page Content */
+.page-content {
+    padding: 20px;
+    background-color: #f4f4f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+    font-size: 16px;
+    line-height: 1.6;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Navigation Buttons */
+.navigation-buttons {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.navigation-buttons button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #333;
+    color: #fff;
+    transition: background-color 0.2s;
+}
+
+.navigation-buttons button:hover {
+    background-color: #555;
+}
+
+.navigation-buttons button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Book Actions */
+.book-actions {
+    margin-top: 10px;
+}
+
+.edit-btn, .delete-btn {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.edit-btn {
+    background-color: #4CAF50;
+    color: #fff;
+}
+
+.delete-btn {
+    background-color: #f44336;
+    color: #fff;
+}
+
+.edit-btn:hover {
+    background-color: #45a049;
+}
+
+.delete-btn:hover {
+    background-color: #d32f2f;
+}
+
+/* Page Content */
+.page-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Page Image */
+.page-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Text Box for Page Content */
+.page-text {
+    width: 100%;
+    max-width: 600px;
+    height: 250px;
+    padding: 20px;
+    background-color: #f4f4f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-y: auto;
+}
+
+/* Navigation Buttons */
+.navigation-buttons {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.navigation-buttons button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #333;
+    color: #fff;
+    transition: background-color 0.2s;
+}
+
+.navigation-buttons button:hover {
+    background-color: #555;
+}
+
+.navigation-buttons button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Home Button in Header */
+.home-btn {
+    background-color: #333;
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    display: inline-block;
+    margin-top: 10px;
+    transition: background-color 0.2s;
+}
+
+.home-btn:hover {
+    background-color: #555;
+}
+
+/* Audio Buttons */
+.audio-buttons {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.audio-buttons button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #333;
+    color: #fff;
+    transition: background-color 0.2s;
+}
+
+.audio-buttons button:hover {
+    background-color: #555;
+}
+
+/* Book Card Styling */
+.book-list ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 0;
+}
+
+.book-card {
+    background-color: #f4f4f9;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    flex: 1 1 calc(45% - 20px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.book-card h3 {
+    margin-bottom: 5px;
+}
+
+.book-card p {
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.genre {
+    color: #777;
+    margin-bottom: 15px;
+}
+
+/* Mark as Read Button */
+.mark-as-read-form {
+    width: 100%;
+    text-align: right;
+}
+
+.mark-as-read-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    margin-top: 10px;
+}
+
+/* Read Again Button */
+.read-again-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background-color: #333;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.read-again-btn:hover {
+    background-color: #555;
+}
+
+/* Book Info */
+.book-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Left Column: Book Information */
+.book-info {
+    flex: 1;
+}
+
+.book-info h3 {
+    margin: 0;
+}
+
+.book-info p {
+    margin: 5px 0 0;
+    color: #555;
+}
+
+/* Right Column: Options Button */
+.options-container {
+    position: relative;
+}
+
+
+.options-btn:hover {
+    background-color: #555;
+}
+
+/* Right Column: Options Button */
+.options-container {
+    position: relative;
+}
+
+/* Options Button */
+.options-btn {
+    background-color: #333;
+    color: #fff;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 10px;
+}
+
+.options-btn:hover {
+    background-color: #555;
+}
+
+/* Dropdown Menu */
+.options-dropdown {
+    display: none;
+    position: absolute;
+    left: 100%; /* Position to the right of the Options button */
+    top: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    min-width: 150px;
+    padding: 3px 0;
+}
+
+/* Individual Dropdown Options */
+.dropdown-btn {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 2px 15px; /* Reduced top and bottom padding for closer spacing */
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    text-decoration: none;
+}
+
+.dropdown-btn:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+/* Centered Action Buttons */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Space between buttons */
+    margin-top: 20px;
+}
+
+.mark-as-read-btn, .play-audio-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s;
+}
+
+.play-audio-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 2px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.mark-as-read-btn:hover, .play-audio-btn:hover {
+    background-color: #555;
+}

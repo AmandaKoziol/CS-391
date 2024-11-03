@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Library</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 My Book Library</h1>
+            <nav>
+                <a href="{{ url_for('history') }}">Reading History</a> |
+                <a href="{{ url_for('recommendations') }}">Book Recommendations</a> |
+                <a href="{{ url_for('import_book_page') }}">Import Your Book</a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="book-list">
+                <h2>Select a Book to Read</h2>
+                <ul>
+                    {% for book in books %}
+                        <li class="book-card">
+                            <!-- Left Column: Book Title and Information -->
+                            <div class="book-info">
+                                <a href="{{ url_for('read_book', book_id=book.id) }}" class="book-link">
+                                    <h3>{{ book.title }}</h3>
+                                    <p>by {{ book.author }}</p>
+                                    <p>{{ book.genre }}</p>
+                                </a>
+                            </div>
+
+                            <!-- Right Column: Options Dropdown Button -->
+                            <div class="options-container">
+                                <button class="options-btn" data-id="{{ book.id }}">Options ⏷</button>
+                                <div id="options-{{ book.id }}" class="options-dropdown">
+                                    <form action="{{ url_for('mark_as_read', book_id=book.id) }}" method="post">
+                                        <button type="submit" class="dropdown-btn">Mark as Read</button>
+                                    </form>
+                                    <a href="{{ url_for('edit_book', book_id=book.id) }}" class="dropdown-btn">Edit</a>
+                                    <a href="{{ url_for('delete_book', book_id=book.id) }}" class="dropdown-btn" onclick="return confirm('Are you sure you want to delete this book?');">Delete</a>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Book Library App</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('options-btn')) {
+                const bookId = event.target.getAttribute('data-id');
+                const dropdown = document.getElementById(`options-${bookId}`);
+
+                // Hide any other open dropdowns
+                document.querySelectorAll('.options-dropdown').forEach(menu => {
+                    menu.style.display = 'none';
+                });
+
+                // Toggle the current dropdown
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            } else {
+                // Hide all dropdowns if clicked outside
+                document.querySelectorAll('.options-dropdown').forEach(menu => {
+                    menu.style.display = 'none';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

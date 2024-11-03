@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Recommendations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Book Recommendations</h1>
+            <nav>
+                <a href="{{ url_for('home') }}">Home</a> |
+                <a href="{{ url_for('history') }}">Reading History</a> |
+                <a href="{{ url_for('import_book_page') }}">Import Your Book</a>
+            </nav>
+        </header>
+
+        <main>
+            <!--
+            <section class="recommendation-input">
+                <h2>Find Books You'll Love</h2>
+                <form method="post" action="{{ url_for('recommendations') }}">
+                    <label for="description">Describe what you're looking for:</label>
+                    <textarea name="description" id="description" rows="4" placeholder="e.g., mystery novels with strong female leads"></textarea>
+                    <button type="submit">Get Recommendations</button>
+                </form>
+            </section>
+            -->
+            <section class="recommendation-list">
+                <h2>Recommended Books Based On Your History</h2>
+                <ul>
+                    {% for rec in recommendations %}
+                        <li class="recommendation-card">
+                            <h3>{{ rec["Title"] }}</h3>
+                            <p>{{ rec["Author"] }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Book Library App</p>
+        </footer>
+    </div>
+</body>
+</html>

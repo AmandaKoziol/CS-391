@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reading: {{ book.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>{{ book.title }}</h1>
+            <h3>by {{ book.author }}</h3>
+            <nav>
+                <a href="{{ url_for('home') }}" class="home-btn">🏠 Home</a>
+            </nav>
+        </header>
+        
+        <main>
+            <div class="page-content">
+                <!-- Placeholder for page image -->
+                <div class="page-image">
+                    <img src="{{ url_for('static', filename='book_placeholder.png') }}" alt="Book Image">
+                </div>
+
+                <!-- Text box for page content with new lines preserved -->
+                <div id="page-text" class="page-text" style="white-space: pre-line;"></div>
+            </div>
+            
+            <!-- Navigation, Mark as Read, and Audio Controls -->
+            <div class="controls">
+                <div class="navigation-buttons">
+                    <button id="prev-page" onclick="prevPage()" disabled>← Previous</button>
+                    <button id="next-page" onclick="nextPage()">Next →</button>
+                </div>
+                <!-- Centered action buttons -->
+                <div class="action-buttons">
+                    {% if not book.read %}
+                    <form action="{{ url_for('mark_as_read', book_id=book.id) }}" method="post" style="display: inline;">
+                        <button type="submit" class="mark-as-read-btn">Mark as Read</button>
+                    </form>
+                    {% endif %}
+                    <button id="audio-btn" onclick="toggleAudio()" class="play-audio-btn">▶️ Play Audio</button>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Page <span id="page-number">1</span> of {{ pages | length }}</p>
+        </footer>
+    </div>
+
+    <!-- Hidden div to store pages data as a JSON string in a data attribute -->
+    <div id="pages-data" data-pages='{{ pages | tojson | safe }}' style="display: none;"></div>
+
+    <script>
+        // Retrieve pages data and parse it correctly
+        const pagesDataElement = document.getElementById('pages-data');
+        const bookPages = JSON.parse(pagesDataElement.getAttribute('data-pages'));
+        let currentPage = 0;
+        let isPlaying = false;
+        let utterance;
+
+        // Function to load the current page content
+        function loadPage(pageIndex) {
+            document.getElementById('page-text').innerText = bookPages[pageIndex];
+            document.getElementById('page-number').innerText = pageIndex + 1;
+
+            // Stop audio if playing and update button text
+            if (isPlaying) toggleAudio();
+
+            // Enable/disable buttons based on current page
+            document.getElementById('prev-page').disabled = pageIndex === 0;
+            document.getElementById('next-page').disabled = pageIndex === bookPages.length - 1;
+        }
+
+        // Functions to navigate between pages
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                loadPage(currentPage);
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < bookPages.length - 1) {
+                currentPage++;
+                loadPage(currentPage);
+            }
+        }
+
+        // Toggle audio playback for the current page
+        function toggleAudio() {
+            const playButton = document.getElementById('audio-btn');
+
+            if (!isPlaying) {
+                // Start reading the current page
+                utterance = new SpeechSynthesisUtterance(bookPages[currentPage]);
+                speechSynthesis.speak(utterance);
+                playButton.textContent = '⏸️ Pause Audio';
+                isPlaying = true;
+
+                // Stop audio when finished speaking
+                utterance.onend = function() {
+                    isPlaying = false;
+                    playButton.textContent = '▶️ Play Audio';
+                };
+            } else {
+                // Stop the current audio
+                speechSynthesis.cancel();
+                playButton.textContent = '▶️ Play Audio';
+                isPlaying = false;
+            }
+        }
+
+        // Initialize by loading the first page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPage(currentPage);
+        });
+    </script>
+</body>
+</html>
