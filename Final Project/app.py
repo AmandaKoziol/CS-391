@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, send_file
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
 #import pyttsx3
@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 import datetime
 from sklearn.neighbors import NearestNeighbors
 import pandas as pd
-import os, re, json
+import os, re, json, pygame
 from openai import OpenAI
 import config
 
@@ -15,6 +15,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 client = OpenAI(api_key=config.OPENAI_API_KEY)
+
+# Initialize pygame mixer
+pygame.mixer.init()
+is_playing = False  # Variable to keep track of the play/pause state
+current_audio_page = 0
+current_audio = ''
 
 from werkzeug.utils import secure_filename
 
@@ -43,6 +49,12 @@ class Book(db.Model):
 # Edit book route
 @app.route('/edit_book/<int:book_id>', methods=['GET', 'POST'])
 def edit_book(book_id):
+    # Pause any audio
+    global is_playing
+    if is_playing:
+        pygame.mixer.music.pause()
+        is_playing = False
+
     book = Book.query.get_or_404(book_id)
     if request.method == 'POST':
         book.title = request.form['title']
@@ -81,35 +93,42 @@ class UserHistory(db.Model):
     rating = db.Column(db.Integer)
     book = db.relationship('Book', backref='history')
 
-# Text-to-speech function
-def read_aloud(text):
-    #tts_engine = pyttsx3.init()
-    #tts_engine.say(text)
-    #tts_engine.runAndWait()
-    pass
-
-# Generate an image for a book page
-def generate_page_image(text, page_number):
-    img = Image.new('RGB', (800, 600), color=(255, 255, 255))
-    d = ImageDraw.Draw(img)
-    font = ImageFont.truetype("arial", 20)
-    d.text((10,10), f"Page {page_number}\n\n{text}", fill=(0, 0, 0), font=font)
-    image_path = f"static/page_{page_number}.png"
-    img.save(image_path)
-    return image_path
+# Route to play or pause the music
+@app.route('/control', methods=['POST'])
+def control_music():
+    global is_playing
+    if is_playing:
+        pygame.mixer.music.pause()
+        is_playing = False
+    else:
+        pygame.mixer.music.unpause() if pygame.mixer.music.get_busy() else pygame.mixer.music.play()
+        is_playing = True
+    return "OK"
 
 # Routes
 @app.route('/')
 def home():
+    # Pause any audio
+    global is_playing
+    if is_playing:
+        pygame.mixer.music.pause()
+        is_playing = False
+
     books = Book.query.filter_by(read=False).all()  # Show only unread books
     return render_template('index.html', books=books)
 
 @app.route('/read/<int:book_id>', methods=['GET'])
 def read_book(book_id):
+    # Pause any audio
+    global is_playing
+    if is_playing:
+        pygame.mixer.music.pause()
+        is_playing = False
+
     book = Book.query.get_or_404(book_id)
     
     # Split content into pages of approximately 200-300 words while preserving new lines
-    words = book.content.split()
+    words = book.content.split(' ')
     page_size = 250  # Adjust for desired word count per page (200-300 words)
     pages = []
     
@@ -119,7 +138,7 @@ def read_book(book_id):
     for word in words:
         current_page += word + " "
         word_count += 1
-        if word_count >= page_size or '\n' in word:
+        if word_count >= page_size:
             pages.append(current_page.strip())
             current_page = ""
             word_count = 0
@@ -128,10 +147,88 @@ def read_book(book_id):
     if current_page:
         pages.append(current_page.strip())
 
+    # Get mp3 pages of book
+    audio_file = f'audio/{book_id}_0.mp3'
+    if not os.path.exists(audio_file):
+        page_num = 0
+        for page in pages:
+            with client.audio.speech.with_streaming_response.create(
+                model="tts-1",
+                voice="nova",
+                input=page
+            ) as response:
+                response.stream_to_file(f'audio/{book_id}_{page_num}.mp3')
+            page_num += 1
+
+    pygame.mixer.music.load(audio_file)
+    global current_audio_page, current_audio
+    current_audio_page = 0
+    current_audio = book_id
+
     return render_template('read.html', book=book, pages=pages)
+
+# Route to play next page audio
+@app.route('/next', methods=['POST'])
+def next_track():
+    global current_audio_page, current_audio, is_playing
+    current_audio_page += 1
+    pygame.mixer.music.load(f'audio/{current_audio}_{current_audio_page}.mp3')
+    if is_playing:
+        pygame.mixer.music.play()
+    return "OK"
+
+# Route to play previous page audio
+@app.route('/previous', methods=['POST'])
+def previous_track():
+    global current_audio_page, current_audio, is_playing
+    current_audio_page -= 1
+    pygame.mixer.music.load(f'audio/{current_audio}_{current_audio_page}.mp3')
+    if is_playing:
+        pygame.mixer.music.play()
+    return "OK"
+
+@app.route('/generate_image', methods=['POST'])
+def generate_image():
+    """Endpoint to generate an image based on page text."""
+    data = request.json
+    page_text = data.get('page_text', '')
+
+    # Use OpenAI to write an image description for Dall-E
+    prompt = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are an image prompt generator that picks the most important details from a page from a book and turns it into an image prompt for Dall-E. \
+             Make it concise and format it so Dall-E can understand what image you want it to generate \
+             The new page may start halfway through a sentence, so try your best to interpret the remaining information to use in your answer \
+             In your output, specify for Dall-E to not include text in the image unless it is part of the environment"},
+            {
+                "role": "user",
+                "content": "Input book page: " + page_text,
+            },
+        ]
+    )
+    print(prompt.choices[0].message.content)
+
+    # Generate the DALL-E image based on the page text
+    response = client.images.generate(
+        model="dall-e-3",
+        prompt=prompt.choices[0].message.content,
+        n=1,
+        size="1024x1024",
+        quality="standard",
+    )
+    image_url = response.data[0].url  # Return the URL of the generated image    
+    print(image_url)
+    return jsonify({'image_url': image_url})
 
 @app.route('/history', methods=['GET', 'POST'])
 def history():
+    # Pause any audio
+    global is_playing
+    if is_playing:
+        pygame.mixer.music.pause()
+        is_playing = False
+
     query = Book.query.filter_by(read=True)  # Only show books marked as read
 
     # Get filter parameters
@@ -157,6 +254,12 @@ def history():
 
 @app.route('/search_history', methods=['POST'])
 def search_history():
+    # Pause any audio
+    global is_playing
+    if is_playing:
+        pygame.mixer.music.pause()
+        is_playing = False
+
     title = request.form.get('title')
     author = request.form.get('author')
     
@@ -171,6 +274,12 @@ def search_history():
 
 @app.route('/recommendations', methods=['GET', 'POST'])
 def recommendations():
+    # Pause any audio
+    global is_playing
+    if is_playing:
+        pygame.mixer.music.pause()
+        is_playing = False
+
     if request.method == 'POST':
         user_input = request.form.get('description')
         # Process user input and generate book recommendations (this is a placeholder)
@@ -233,6 +342,11 @@ def get_recommendations_based_on_input(input_description):
 
 @app.route('/import_book_page')
 def import_book_page():
+    # Pause any audio
+    global is_playing
+    if is_playing:
+        pygame.mixer.music.pause()
+        is_playing = False
     return render_template('import_book.html')
 
 @app.route('/import_book', methods=['POST'])

@@ -17,9 +17,9 @@
         
         <main>
             <div class="page-content">
-                <!-- Placeholder for page image -->
+                <!-- Page Image -->
                 <div class="page-image">
-                    <img src="{{ url_for('static', filename='book_placeholder.png') }}" alt="Book Image">
+                    <img id="generated-image" src="{{ url_for('static', filename='loading.png') }}" alt="Generated Image">
                 </div>
 
                 <!-- Text box for page content with new lines preserved -->
@@ -61,23 +61,54 @@
         let utterance;
 
         // Function to load the current page content
-        function loadPage(pageIndex) {
+        async function loadPage(pageIndex) {
             document.getElementById('page-text').innerText = bookPages[pageIndex];
             document.getElementById('page-number').innerText = pageIndex + 1;
 
             // Stop audio if playing and update button text
-            if (isPlaying) toggleAudio();
+            //if (isPlaying) toggleAudio();
+
+            // Fetch image based on the page text
+            const imageUrl = await fetchImageForPage(bookPages[pageIndex]);
+            document.getElementById('generated-image').src = imageUrl;
 
             // Enable/disable buttons based on current page
             document.getElementById('prev-page').disabled = pageIndex === 0;
             document.getElementById('next-page').disabled = pageIndex === bookPages.length - 1;
         }
 
+        // Function to fetch DALL-E image for a given page text
+        async function fetchImageForPage(pageText) {
+            const response = await fetch('/generate_image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ page_text: pageText })
+            });
+            const data = await response.json();
+            return data.image_url;
+        }
+
+        // Initialize by loading the first page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPage(currentPage);
+        });
+
         // Functions to navigate between pages
         function prevPage() {
             if (currentPage > 0) {
                 currentPage--;
                 loadPage(currentPage);
+                fetch('/previous', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Playing previous track");
+                        if (isPlaying) {
+                            document.getElementById('audio-btn').textContent = '⏸️ Pause Audio';
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
             }
         }
 
@@ -85,6 +116,15 @@
             if (currentPage < bookPages.length - 1) {
                 currentPage++;
                 loadPage(currentPage);
+                fetch('/next', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Playing next track");
+                        if (isPlaying) {
+                            document.getElementById('audio-btn').textContent = '⏸️ Pause Audio';
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
             }
         }
 
@@ -92,6 +132,15 @@
         function toggleAudio() {
             const playButton = document.getElementById('audio-btn');
 
+            fetch('/control', { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        isPlaying = !isPlaying;
+                        playButton.textContent = isPlaying ? '⏸️ Pause Audio' : '▶️ Play Audio';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            /*
             if (!isPlaying) {
                 // Start reading the current page
                 utterance = new SpeechSynthesisUtterance(bookPages[currentPage]);
@@ -110,12 +159,15 @@
                 playButton.textContent = '▶️ Play Audio';
                 isPlaying = false;
             }
+            */
         }
 
         // Initialize by loading the first page
+        /*
         document.addEventListener('DOMContentLoaded', function() {
             loadPage(currentPage);
         });
+        */
     </script>
 </body>
 </html>
