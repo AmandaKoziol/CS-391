@@ -63,7 +63,7 @@ def edit_book(book_id):
         book.content = request.form['content']
 
         db.session.commit()
-        flash("Book updated successfully!", "success")
+        #flash("Book updated successfully!", "success")
         return redirect(url_for('home'))
     
     return render_template('edit_book.html', book=book)
@@ -74,7 +74,7 @@ def delete_book(book_id):
     book = Book.query.get_or_404(book_id)
     db.session.delete(book)
     db.session.commit()
-    flash("Book deleted successfully!", "danger")
+    #flash("Book deleted successfully!", "danger")
     return redirect(url_for('home'))
 
 @app.route('/mark_as_read/<int:book_id>', methods=['POST'])
@@ -82,7 +82,7 @@ def mark_as_read(book_id):
     book = Book.query.get_or_404(book_id)
     book.read = True  # Mark the book as read
     db.session.commit()
-    flash(f"{book.title} marked as read.", "success")
+    #flash(f"{book.title} marked as read.", "success")
     return redirect(url_for('home'))
 
 class UserHistory(db.Model):
@@ -200,7 +200,7 @@ def generate_image():
             {"role": "system", "content": "You are an image prompt generator that picks the most important details from a page from a book and turns it into an image prompt for Dall-E. \
              Make it concise and format it so Dall-E can understand what image you want it to generate \
              The new page may start halfway through a sentence, so try your best to interpret the remaining information to use in your answer \
-             In your output, specify for Dall-E to not include text in the image unless it is part of the environment"},
+             In your output, specify for Dall-E to not include text in the image"},
             {
                 "role": "user",
                 "content": "Input book page: " + page_text,
