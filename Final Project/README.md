@@ -1,6 +1,6 @@
 # CS 391 Final Project
 
-To run, enter `python app.py` in the project terminal
+To run, add a `config.py` file with `OPENAI_API_KEY` in the project directory and enter `python app.py` in the project terminal
 
 # Open AI Prompts Used to Generate Book App
 1. Give me code for a Flask app for a book app that has the following features:
