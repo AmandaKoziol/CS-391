@@ -12,6 +12,6 @@ ChatGPT Class
 | Week 7 | Gemini, Offline Llama |
 | Week 8 | LangChain, Parsers (custom object outputs) |
 | Week 9 | Agents, Chains, RAG |
-| Week 10 | CrewAI |
+| Week 10 | CrewAI, Swarm |
 | Midterm | Dall-E, Vision |
 | Final | - |
