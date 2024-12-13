@@ -1,14 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, send_file
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
-#import pyttsx3
-from PIL import Image, ImageDraw, ImageFont
 import datetime
-from sklearn.neighbors import NearestNeighbors
 import pandas as pd
 import os, re, json, pygame
 from openai import OpenAI
 import config
+from ai_functs import get_recommendations, get_image
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books.db'
@@ -192,34 +190,7 @@ def generate_image():
     """Endpoint to generate an image based on page text."""
     data = request.json
     page_text = data.get('page_text', '')
-
-    # Use OpenAI to write an image description for Dall-E
-    prompt = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are an image prompt generator that picks the most important details from a page from a book and turns it into an image prompt for Dall-E. \
-             Make it concise and format it so Dall-E can understand what image you want it to generate \
-             The new page may start halfway through a sentence, so try your best to interpret the remaining information to use in your answer \
-             In your output, specify for Dall-E to not include text in the image"},
-            {
-                "role": "user",
-                "content": "Input book page: " + page_text,
-            },
-        ]
-    )
-    print(prompt.choices[0].message.content)
-
-    # Generate the DALL-E image based on the page text
-    response = client.images.generate(
-        model="dall-e-3",
-        prompt=prompt.choices[0].message.content,
-        n=1,
-        size="1024x1024",
-        quality="standard",
-    )
-    image_url = response.data[0].url  # Return the URL of the generated image    
-    print(image_url)
-    return jsonify({'image_url': image_url})
+    return get_image(page_text)
 
 @app.route('/history', methods=['GET', 'POST'])
 def history():
@@ -296,45 +267,9 @@ def get_recommendations_based_on_history():
         
     # Check if there are any read books
     if not read_books: return []
-    # Transform read books into string
-    read_books_str = ''
-    for book in read_books:
-        read_books_str += book.title + ' by ' + book.author + ', '
 
-    # Get suggestions
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant that has a lot of knowledge about books. \
-             When you are given a list of books the reader has read, provide up to 10 book suggestions that the reader may like based on their read books. \
-             Return the result as a python array of up to 10 dicts with the book title and author. \
-             For example, if the reader read Harry Potter and the Sorcerer's Stone, return [{'title': 'Percy Jackson and the Olympians','author':'Rick Riordan'}]"},
-            {
-                "role": "user",
-                "content": "User read history: " + read_books_str,
-            },
-        ]
-    )
+    return get_recommendations(read_books)
 
-    # Convert suggestions
-    rec_list = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a string to python list of dicts converter. \
-             When you are given a list of books as a string, convert them to a list of dictionary objects in python. \
-             For example, '1. Title: The Tell-Tale Heart \nAuthor: Edgar Allan Poe' becomes [{'Title': 'The Tell-Tale Heart','Author':'Edgar Allan Poe'}]"},
-            {
-                "role": "user",
-                "content": response.choices[0].message.content,
-            },
-        ]
-    )
-    rec_list = '[' + rec_list.choices[0].message.content.split('[', 1)[1] 
-
-    print(response.choices[0].message.content)
-    print('\n')
-    print(str(eval(rec_list)))
-    return eval(rec_list)
 
 def get_recommendations_based_on_input(input_description):
     # Placeholder function for NLP processing of user input

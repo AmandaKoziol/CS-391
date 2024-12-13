@@ -15,7 +15,7 @@ To run, add a `config.py` file with `OPENAI_API_KEY` in the project directory an
 2. Make the Flask app pretty
 3. *Additional prompts to fix formatting*
 
-# Generated Code for each prompt
+# Generated Code for Each Prompt
 1. app.py (without Open AI calls) and html files
 2. css file
 

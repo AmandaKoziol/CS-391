@@ -30,10 +30,10 @@
             <section class="recommendation-list">
                 <h2>Recommended Books Based On Your History</h2>
                 <ul>
-                    {% for rec in recommendations %}
+                    {% for rec in recommendations.books %}
                         <li class="recommendation-card">
-                            <h3>{{ rec["Title"] }}</h3>
-                            <p>{{ rec["Author"] }}</p>
+                            <h3>{{ rec.title }}</h3>
+                            <p>{{ rec.author }}</p>
                         </li>
                     {% endfor %}
                 </ul>
