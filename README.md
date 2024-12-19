@@ -3,7 +3,7 @@ ChatGPT Class
 
 | Folder | Topics |
 | ------ | ------ |
-| Week 1 | Open AI API |
+| Week 1 | Open AI API, Moderation |
 | Week 2 | Making apps with AI |
 | Week 3 | Dall-E, Whisper, Vision |
 | Week 4 | Realtime, Moderation, Using external API's with Open AI |
